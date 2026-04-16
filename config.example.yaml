@@ -1,0 +1,231 @@
+# ═══════════════════════════════════════════════
+# 🦇 SILENT GUARDIAN v4 — FULL SPECTRUM CONFIG
+# ═══════════════════════════════════════════════
+
+# --- API Anahtarları ---
+alpaca:
+  api_key: "ALPACA_API_KEY_BURAYA"
+  secret_key: "ALPACA_SECRET_KEY_BURAYA"
+  base_url: "https://paper-api.alpaca.markets"   # Paper trading
+  data_url: "https://data.alpaca.markets"
+
+# --- Telegram (Çift Yönlü) ---
+telegram:
+  enabled: true
+  bot_token: "TELEGRAM_BOT_TOKEN_BURAYA"
+  chat_id: "TELEGRAM_CHAT_ID_BURAYA"
+
+# --- Tarama Kapsamı ---
+# Faz 1: Sadece US aktif
+markets:
+  us:
+    enabled: true
+    source: "alpaca"          # alpaca veya yfinance
+    min_price: 10             # $10 altı hisseler hariç
+    min_avg_volume: 500000    # Günlük ort. hacim min 500K
+    max_stocks: 80            # Taramada max hisse sayısı
+  bist:
+    enabled: false            # Faz 2'de aktif olacak
+    source: "yfinance"
+  crypto:
+    enabled: false            # Faz 3
+
+# --- US Watchlist (Sektöre göre) ---
+us_watchlist:
+  etf:
+    - SPY
+    - QQQ
+    - IWM
+    - DIA
+    - XLF
+    - XLE
+    - XLK
+    - XLV
+    - ARKK
+    - SMH
+  tech:
+    - AAPL
+    - MSFT
+    - GOOGL
+    - AMZN
+    - NVDA
+    - META
+    - TSLA
+    - AMD
+    - INTC
+    - CRM
+    - ORCL
+    - ADBE
+    - AVGO
+    - QCOM
+    - MU
+    - PLTR
+    - SNOW
+    - NET
+    - SHOP
+    - SQ
+  finance:
+    - JPM
+    - BAC
+    - GS
+    - MS
+    - V
+    - MA
+    - C
+    - WFC
+    - BLK
+    - SCHW
+  health:
+    - JNJ
+    - PFE
+    - UNH
+    - ABBV
+    - MRK
+    - LLY
+    - BMY
+    - AMGN
+  consumer:
+    - WMT
+    - KO
+    - PEP
+    - DIS
+    - NFLX
+    - NKE
+    - MCD
+    - SBUX
+    - TGT
+    - COST
+  energy:
+    - XOM
+    - CVX
+    - COP
+    - SLB
+    - OXY
+  industrial:
+    - BA
+    - CAT
+    - DE
+    - GE
+    - HON
+    - LMT
+    - RTX
+    - UPS
+
+# --- BIST Watchlist (Faz 2 — hazır bekliyor) ---
+bist_watchlist:
+  banka:
+    - GARAN.IS
+    - AKBNK.IS
+    - YKBNK.IS
+    - ISCTR.IS
+    - HALKB.IS
+    - VAKBN.IS
+  sanayi:
+    - THYAO.IS
+    - ASELS.IS
+    - EREGL.IS
+    - SISE.IS
+    - TUPRS.IS
+    - FROTO.IS
+    - TOASO.IS
+    - ARCLK.IS
+  holding:
+    - KCHOL.IS
+    - SAHOL.IS
+    - DOHOL.IS
+  perakende:
+    - BIMAS.IS
+    - MGROS.IS
+  diger:
+    - TCELL.IS
+    - PGSUS.IS
+    - TAVHL.IS
+    - KOZAL.IS
+    - SASA.IS
+    - ENKAI.IS
+    - TTKOM.IS
+    - PETKM.IS
+    - EKGYO.IS
+
+# --- Strateji Parametreleri ---
+strategy:
+  # Bollinger Bands
+  bollinger_window: 20
+  bollinger_std: 2.0
+
+  # Keltner Channel (YENİ)
+  keltner_ema: 20
+  keltner_atr_mult: 1.5
+  keltner_atr_period: 10
+
+  # Z-Score
+  zscore_window: 20
+
+  # RSI
+  rsi_period: 14
+  rsi_oversold: 30
+  rsi_overbought: 70
+
+  # Stochastic
+  stoch_k: 14
+  stoch_d: 3
+  stoch_oversold: 20
+  stoch_overbought: 80
+
+  # MACD
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+
+  # EMA Trend
+  ema_short: 20
+  ema_long: 50
+
+  # Volume
+  volume_spike_mult: 2.0
+  vwap_window: 20
+
+  # ATR
+  atr_period: 14
+
+# --- Puanlama Ağırlıkları (toplam 100) ---
+scoring:
+  weights:
+    bollinger: 15
+    keltner: 10        # YENİ
+    zscore: 10
+    rsi: 12
+    stochastic: 8
+    volume_spike: 15
+    vwap: 10
+    macd: 10
+    trend: 5
+    squeeze: 5         # YENİ — BB içinde Keltner = patlama yakın
+
+  thresholds:
+    strong: 72
+    moderate: 55
+    weak: 40
+
+# --- Risk Motoru (YENİ) ---
+risk:
+  portfolio_size: 10000       # Paper trading başlangıç ($)
+  max_risk_per_trade_pct: 2   # Tek işlemde max %2 risk
+  half_kelly: true             # Kelly'nin yarısını kullan
+  default_rr_ratio: 2.0       # Min Risk:Ödül oranı
+  atr_stop_multiplier: 2.0    # Stop = giriş ± 2×ATR
+  commission_per_trade: 0.0   # Alpaca komisyonsuz
+  slippage_bps: 2             # Tahmini kayma (baz puan)
+
+# --- Zamanlayıcı ---
+scheduler:
+  scan_interval_minutes: 15
+  active_hours_start: "16:00"   # TR saati (US market)
+  active_hours_end: "23:30"
+  scan_on_start: true
+
+# --- Güvenlik ---
+safety:
+  paper_trading: true
+  max_signals_per_day: 10
+  max_sector_concentration: 3
